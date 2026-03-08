@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="JAX Portfolio">
+<meta name="theme-color" content="#0f2137">
+<title>JAX Multifamily Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:        #0f2137;
+    --navy-mid:    #1a3a5c;
+    --blue:        #2563a8;
+    --sky:         #4a9edd;
+    --gold:        #c9a227;
+    --gold-light:  #e8c56a;
+    --cream:       #f5f0e8;
+    --cream-dark:  #ede5d8;
+    --text:        #1c2b3a;
+    --text-mid:    #4a5568;
+    --text-light:  #8a9ab0;
+    --white:       #ffffff;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-top:    env(safe-area-inset-top, 0px);
+    --tab-height:  62px;
+    --header-h:    58px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html, body {
+    height: 100%; width: 100%;
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── APP SHELL ── */
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-top: var(--safe-top);
+  }
+
+  /* ── HEADER ── */
+  .app-header {
+    height: var(--header-h);
+    background: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    position: relative;
+    z-index: 200;
+  }
+
+  .header-brand { display:flex; align-items:center; gap:11px; }
+
+  .logo-mark {
+    width:34px; height:34px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    border-radius: 9px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Playfair Display',serif;
+    font-size:17px; font-weight:700; color:var(--navy);
+    flex-shrink:0;
+    box-shadow: 0 2px 10px rgba(201,162,39,0.35);
+  }
+
+  .header-text-title {
+    font-family:'Playfair Display',serif;
+    font-size:15px; font-weight:600; color:var(--white);
+    line-height:1.2;
+  }
+
+  .header-text-sub {
+    font-size:10px; color:rgba(255,255,255,0.4);
+    letter-spacing:0.07em; text-transform:uppercase;
+    margin-top:1px;
+  }
+
+  .live-badge {
+    display:flex; align-items:center; gap:6px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:20px; padding:5px 11px;
+    font-size:10.5px; color:rgba(255,255,255,0.55);
+    letter-spacing:0.04em;
+  }
+  .live-dot {
+    width:6px; height:6px; border-radius:50%;
+    background:#22c55e;
+    animation: livepulse 2s infinite;
+    flex-shrink:0;
+  }
+  @keyframes livepulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.75)} }
+
+  /* ── TAB CONTENT AREA ── */
+  .tab-content {
+    flex:1; overflow:hidden; position:relative;
+  }
+
+  .tab-pane {
+    position:absolute; inset:0;
+    transition: opacity 0.22s ease, transform 0.22s ease;
+    will-change: opacity, transform;
+  }
+  .tab-pane.hidden {
+    opacity:0; pointer-events:none; transform:translateY(6px);
+  }
+  .tab-pane.visible {
+    opacity:1; pointer-events:all; transform:translateY(0);
+  }
+
+  /* ════════════════════════
+     TAB 1 — MAP
+  ════════════════════════ */
+  #tab-map { background: #c8dff0; }
+
+  #gmap { width:100%; height:100%; }
+
+  /* Floating search bar over map */
+  .map-search-bar {
+    position:absolute; top:14px; left:14px; right:14px;
+    z-index:50;
+    display:flex; gap:10px; align-items:center;
+  }
+
+  .map-search-input-wrap {
+    flex:1;
+    background:rgba(255,255,255,0.97);
+    border-radius:12px;
+    display:flex; align-items:center; gap:8px;
+    padding: 0 14px;
+    height:44px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.18);
+  }
+
+  .map-search-input-wrap input {
+    flex:1; border:none; outline:none; background:transparent;
+    font-family:'DM Sans',sans-serif; font-size:14px; color:var(--text);
+  }
+  .map-search-input-wrap input::placeholder { color:var(--text-light); }
+
+  .map-search-icon { color:var(--text-light); font-size:16px; flex-shrink:0; }
+
+  .map-search-clear {
+    background:none; border:none; cursor:pointer;
+    color:var(--text-light); font-size:18px; padding:0; display:none;
+    line-height:1;
+  }
+
+  .map-filter-btn {
+    width:44px; height:44px;
+    background:var(--navy-mid);
+    border-radius:12px;
+    border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.2);
+    flex-shrink:0;
+    transition:background .15s;
+    position:relative;
+  }
+  .map-filter-btn:active { background:var(--blue); }
+
+  .filter-count-badge {
+    position:absolute; top:-4px; right:-4px;
+    width:16px; height:16px;
+    background:var(--gold);
+    border-radius:50%;
+    font-size:9px; font-weight:700;
+    color:var(--navy);
+    display:flex; align-items:center; justify-content:center;
+    display:none;
+  }
+
+  /* Zone filter drawer over map */
+  .zone-drawer {
+    position:absolute; top:72px; left:14px; right:14px;
+    z-index:49;
+    background:rgba(255,255,255,0.97);
+    border-radius:14px;
+    padding:14px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.18);
+    transform:translateY(-10px) scaleY(0.95);
+    transform-origin:top;
+    opacity:0; pointer-events:none;
+    transition:all 0.2s ease;
+  }
+  .zone-drawer.open {
+    transform:translateY(0) scaleY(1);
+    opacity:1; pointer-events:all;
+  }
+
+  .zone-drawer-title {
+    font-size:11px; font-weight:600; color:var(--text-mid);
+    text-transform:uppercase; letter-spacing:0.08em; margin-bottom:10px;
+  }
+
+  .zone-chips-wrap {
+    display:flex; flex-wrap:wrap; gap:7px;
+  }
+
+  .z-chip {
+    padding:5px 13px; border-radius:20px;
+    font-size:12px; font-weight:500;
+    border:1.5px solid var(--cream-dark);
+    background:var(--cream); color:var(--text-mid);
+    cursor:pointer; transition:all .15s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .z-chip.active { background:var(--navy-mid); color:var(--white); border-color:var(--navy-mid); }
+  .z-chip:active { transform:scale(0.95); }
+
+  /* Property count floating */
+  .map-prop-count {
+    position:absolute; bottom:80px; left:50%; transform:translateX(-50%);
+    background:rgba(15,33,55,0.85); backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:24px; padding:7px 18px;
+    font-size:12px; color:rgba(255,255,255,0.7);
+    white-space:nowrap; z-index:40;
+    pointer-events:none;
+    letter-spacing:0.03em;
+  }
+  .map-prop-count strong { color:var(--gold-light); }
+
+  /* ════════════════════════
+     TAB 2 — PROPERTIES LIST
+  ════════════════════════ */
+  #tab-list {
+    background:var(--cream);
+    display:flex; flex-direction:column;
+    overflow:hidden;
+  }
+
+  .list-header {
+    background:var(--white);
+    padding:14px 16px 10px;
+    border-bottom:1px solid var(--cream-dark);
+    flex-shrink:0;
+  }
+
+  .list-header-top {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:10px;
+  }
+
+  .list-title {
+    font-family:'Playfair Display',serif;
+    font-size:17px; color:var(--navy-mid);
+  }
+
+  .list-count-pill {
+    background:var(--navy-mid); color:var(--white);
+    border-radius:20px; padding:3px 10px;
+    font-family:'DM Mono',monospace; font-size:11px; font-weight:500;
+  }
+
+  .list-search-wrap {
+    position:relative;
+  }
+
+  .list-search-wrap input {
+    width:100%; height:40px;
+    padding:0 14px 0 36px;
+    border:1.5px solid var(--cream-dark);
+    border-radius:10px;
+    font-family:'DM Sans',sans-serif; font-size:13.5px;
+    color:var(--text); background:var(--cream);
+    outline:none; transition:border-color .2s, background .2s;
+    -webkit-appearance:none;
+  }
+  .list-search-wrap input:focus { border-color:var(--sky); background:var(--white); }
+
+  .list-search-icon {
+    position:absolute; left:11px; top:50%; transform:translateY(-50%);
+    color:var(--text-light); font-size:16px; pointer-events:none;
+  }
+
+  .list-zone-bar {
+    background:var(--white);
+    padding:8px 16px 10px;
+    border-bottom:1px solid var(--cream-dark);
+    display:flex; gap:7px; overflow-x:auto;
+    flex-shrink:0; -webkit-overflow-scrolling:touch;
+  }
+  .list-zone-bar::-webkit-scrollbar { display:none; }
+
+  .lz-chip {
+    flex:0 0 auto;
+    padding:4px 13px; border-radius:20px;
+    font-size:12px; font-weight:500;
+    border:1.5px solid var(--cream-dark);
+    background:var(--cream); color:var(--text-mid);
+    cursor:pointer; transition:all .15s; white-space:nowrap;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .lz-chip.active { background:var(--navy-mid); color:var(--white); border-color:var(--navy-mid); }
+  .lz-chip:active { transform:scale(0.96); }
+
+  /* Property cards list */
+  .prop-scroll {
+    flex:1; overflow-y:auto; padding:10px 12px 12px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .prop-scroll::-webkit-scrollbar { width:3px; }
+  .prop-scroll::-webkit-scrollbar-thumb { background:var(--cream-dark); border-radius:2px; }
+
+  .prop-card {
+    background:var(--white);
+    border-radius:14px;
+    padding:14px 15px;
+    margin-bottom:9px;
+    display:flex; align-items:flex-start; gap:12px;
+    border:1.5px solid transparent;
+    cursor:pointer;
+    transition:border-color .15s, box-shadow .15s, transform .1s;
+    -webkit-tap-highlight-color:transparent;
+    position:relative; overflow:hidden;
+  }
+  .prop-card::after {
+    content:'›';
+    position:absolute; right:14px; top:50%; transform:translateY(-50%);
+    font-size:20px; color:var(--cream-dark);
+    transition:color .15s, right .15s;
+  }
+  .prop-card:active { transform:scale(0.98); }
+  .prop-card:hover, .prop-card:active { border-color:var(--sky); box-shadow:0 4px 18px rgba(74,158,221,.12); }
+  .prop-card:hover::after, .prop-card:active::after { color:var(--sky); right:12px; }
+  .prop-card.active-card { border-color:var(--gold); box-shadow:0 4px 22px rgba(201,162,39,.18); }
+  .prop-card.active-card::after { color:var(--gold); }
+  .prop-card.filtered-out { display:none; }
+
+  .prop-num {
+    width:32px; height:32px;
+    background:var(--navy-mid); border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'DM Mono',monospace; font-size:11px; font-weight:500;
+    color:var(--white); flex-shrink:0; margin-top:1px;
+  }
+  .prop-card.active-card .prop-num { background:var(--gold); color:var(--navy); }
+
+  .prop-info { flex:1; padding-right:18px; }
+  .prop-name { font-size:14px; font-weight:600; color:var(--text); line-height:1.3; margin-bottom:3px; }
+  .prop-addr { font-size:12px; color:var(--text-mid); line-height:1.5; margin-bottom:5px; }
+  .prop-zone-tag { display:inline-block; padding:2px 9px; border-radius:20px; font-size:10.5px; font-weight:500; letter-spacing:.02em; }
+
+  .no-results {
+    text-align:center; padding:40px 20px;
+    color:var(--text-light); font-size:14px; display:none;
+  }
+  .no-results .nr-icon { font-size:36px; margin-bottom:10px; }
+
+  /* ════════════════════════
+     TAB 3 — ZONES
+  ════════════════════════ */
+  #tab-zones {
+    background:var(--cream);
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding-bottom:20px;
+  }
+
+  .zones-header {
+    padding:18px 16px 12px;
+    font-family:'Playfair Display',serif;
+    font-size:20px; color:var(--navy-mid);
+    background:var(--white);
+    border-bottom:1px solid var(--cream-dark);
+    margin-bottom:12px;
+  }
+
+  .zone-section { padding:0 12px 4px; }
+
+  .zone-section-header {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 4px 8px;
+  }
+
+  .zone-color-dot {
+    width:10px; height:10px; border-radius:50%; flex-shrink:0;
+  }
+
+  .zone-section-name {
+    font-family:'Playfair Display',serif;
+    font-size:15px; font-weight:600; color:var(--navy-mid);
+    flex:1;
+  }
+
+  .zone-section-count {
+    font-family:'DM Mono',monospace;
+    font-size:11px; color:var(--text-light);
+  }
+
+  .zone-mini-card {
+    background:var(--white); border-radius:10px;
+    padding:10px 13px; margin-bottom:7px;
+    display:flex; align-items:center; gap:10px;
+    cursor:pointer; border:1.5px solid transparent;
+    transition:all .15s;
+  }
+  .zone-mini-card:active { transform:scale(0.98); border-color:var(--sky); }
+
+  .zone-mini-num {
+    width:24px; height:24px; border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'DM Mono',monospace; font-size:10px; font-weight:500;
+    color:var(--white); flex-shrink:0;
+  }
+
+  .zone-mini-name { font-size:12.5px; font-weight:600; color:var(--text); }
+  .zone-mini-addr { font-size:11px; color:var(--text-mid); margin-top:1px; }
+  .zone-mini-arrow { margin-left:auto; color:var(--cream-dark); font-size:16px; flex-shrink:0; }
+
+  /* ── TAB BAR ── */
+  .tab-bar {
+    height: calc(var(--tab-height) + var(--safe-bottom));
+    padding-bottom: var(--safe-bottom);
+    background:var(--white);
+    border-top:1px solid var(--cream-dark);
+    display:flex;
+    flex-shrink:0;
+    box-shadow:0 -4px 20px rgba(0,0,0,0.08);
+    position:relative; z-index:200;
+  }
+
+  .tab-btn {
+    flex:1; display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:3px; cursor:pointer; border:none;
+    background:transparent; padding:0; padding-top:6px;
+    -webkit-tap-highlight-color:transparent;
+    transition:all .15s; position:relative;
+  }
+
+  .tab-btn:active { opacity:0.7; }
+
+  .tab-icon {
+    width:26px; height:26px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px; transition:transform .2s;
+    position:relative;
+  }
+
+  .tab-btn.active .tab-icon { transform:scale(1.12); }
+
+  .tab-label {
+    font-size:9.5px; font-weight:500; color:var(--text-light);
+    letter-spacing:0.06em; text-transform:uppercase;
+    transition:color .15s;
+  }
+  .tab-btn.active .tab-label { color:var(--navy-mid); font-weight:600; }
+
+  .tab-indicator {
+    position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+    width:0; height:3px;
+    background:var(--gold);
+    border-radius:3px 3px 0 0;
+    transition:width .2s ease;
+  }
+  .tab-btn.active .tab-indicator { width:28px; }
+
+  /* ── GOOGLE MAPS INFO WINDOW ── */
+  .gm-style .gm-style-iw-c {
+    padding:0 !important; border-radius:14px !important;
+    box-shadow:0 16px 48px rgba(15,33,55,.25) !important;
+    overflow:hidden !important; min-width:0 !important;
+  }
+  .gm-style .gm-style-iw-d { overflow:hidden !important; padding:0 !important; }
+  .gm-style-iw-tc { display:none !important; }
+  .gm-style .gm-style-iw-t::after { display:none !important; }
+  button.gm-ui-hover-effect {
+    top:6px !important; right:6px !important;
+    background:rgba(255,255,255,0.18) !important;
+    border-radius:50% !important;
+    opacity:1 !important; width:28px !important; height:28px !important;
+  }
+  button.gm-ui-hover-effect img { filter:brightness(10) !important; width:14px !important; height:14px !important; }
+
+  .iw-wrap { width:270px; font-family:'DM Sans',sans-serif; }
+  .iw-head {
+    background:var(--navy-mid); padding:13px 15px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .iw-num {
+    width:32px; height:32px; background:var(--gold);
+    border-radius:7px; display:flex; align-items:center; justify-content:center;
+    font-family:'DM Mono',monospace; font-size:12px; font-weight:600;
+    color:var(--navy); flex-shrink:0;
+  }
+  .iw-title { font-family:'Playfair Display',serif; font-size:13.5px; color:var(--white); line-height:1.3; }
+  .iw-body { padding:13px 15px; background:var(--white); }
+  .iw-row { display:flex; gap:8px; margin-bottom:8px; font-size:12.5px; color:var(--text-mid); align-items:flex-start; }
+  .iw-ico { font-size:13px; flex-shrink:0; margin-top:0px; }
+  .iw-zone { display:inline-block; padding:2px 9px; border-radius:20px; font-size:11px; font-weight:500; margin-top:3px; }
+  .iw-btns { display:flex; gap:8px; margin-top:12px; }
+  .iw-btn {
+    flex:1; padding:9px 8px; border-radius:9px;
+    font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600;
+    text-align:center; text-decoration:none; cursor:pointer;
+    transition:all .15s;
+  }
+  .iw-btn-primary { background:var(--navy-mid); color:var(--white); }
+  .iw-btn-secondary { background:var(--cream); color:var(--navy-mid); border:1.5px solid var(--cream-dark); }
+  .iw-btn:active { opacity:0.8; transform:scale(0.97); }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="logo-mark">M</div>
+      <div>
+        <div class="header-text-title">JAX Portfolio</div>
+        <div class="header-text-sub">14 Properties · 7 Zones</div>
+      </div>
+    </div>
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      Google Maps
+    </div>
+  </header>
+
+  <!-- TAB CONTENT -->
+  <div class="tab-content">
+
+    <!-- ══ TAB 1: MAP ══ -->
+    <div id="tab-map" class="tab-pane visible">
+      <div id="gmap"></div>
+
+      <!-- Floating search -->
+      <div class="map-search-bar">
+        <div class="map-search-input-wrap">
+          <span class="map-search-icon">⌕</span>
+          <input type="text" id="map-search" placeholder="Search properties or zones…"
+                 oninput="mapSearch(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
+          <button class="map-search-clear" id="map-search-clear" onclick="clearMapSearch()">×</button>
+        </div>
+        <button class="map-filter-btn" onclick="toggleZoneDrawer()" id="filter-btn">
+          <span>⚡</span>
+          <div class="filter-count-badge" id="filter-badge">1</div>
+        </button>
+      </div>
+
+      <!-- Zone filter drawer -->
+      <div class="zone-drawer" id="zone-drawer">
+        <div class="zone-drawer-title">Filter by Zone</div>
+        <div class="zone-chips-wrap" id="map-zone-chips"></div>
+      </div>
+
+      <!-- Property count -->
+      <div class="map-prop-count" id="map-prop-count">
+        Showing <strong id="visible-count">14</strong> of 14 properties
+      </div>
+    </div>
+
+    <!-- ══ TAB 2: PROPERTIES ══ -->
+    <div id="tab-list" class="tab-pane hidden">
+      <div class="list-header">
+        <div class="list-header-top">
+          <div class="list-title">Properties</div>
+          <div class="list-count-pill" id="list-count-pill">14 total</div>
+        </div>
+        <div class="list-search-wrap">
+          <span class="list-search-icon">⌕</span>
+          <input type="text" id="list-search" placeholder="Search name, address, zone…"
+                 oninput="listSearch(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+      </div>
+      <div class="list-zone-bar" id="list-zone-bar"></div>
+      <div class="prop-scroll" id="prop-scroll">
+        <!-- cards injected by JS -->
+        <div class="no-results" id="no-results">
+          <div class="nr-icon">🔍</div>
+          No properties match your search.
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ TAB 3: ZONES ══ -->
+    <div id="tab-zones" class="tab-pane hidden">
+      <div class="zones-header">Market Zones</div>
+      <div id="zones-content"></div>
+    </div>
+
+  </div>
+
+  <!-- TAB BAR -->
+  <nav class="tab-bar">
+    <button class="tab-btn active" id="btn-map" onclick="switchTab('map')">
+      <div class="tab-indicator"></div>
+      <div class="tab-icon">🗺️</div>
+      <div class="tab-label">Map</div>
+    </button>
+    <button class="tab-btn" id="btn-list" onclick="switchTab('list')">
+      <div class="tab-indicator"></div>
+      <div class="tab-icon">🏘️</div>
+      <div class="tab-label">Properties</div>
+    </button>
+    <button class="tab-btn" id="btn-zones" onclick="switchTab('zones')">
+      <div class="tab-indicator"></div>
+      <div class="tab-icon">⚡</div>
+      <div class="tab-label">Zones</div>
+    </button>
+  </nav>
+
+</div>
+
+<script>
+// ══════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════
+const PROPS = [
+  { num:1,  name:"Tidewater at Atlantic Beach",  addr:"2768 Jimmy Buffett Mem Hwy", city:"Jacksonville, FL 32233",       zone:"Beach",     lat:30.3615733, lng:-81.4222041 },
+  { num:2,  name:"Vernon Terrace",                addr:"2749 Vernon Terrace",         city:"Jacksonville, FL 32205",       zone:"Riverside", lat:30.3054143, lng:-81.6919176 },
+  { num:3,  name:"Verus Square",                  addr:"5032 Shirley Street",          city:"Jacksonville, FL 32210",       zone:"Westside",  lat:30.283661,  lng:-81.7312789 },
+  { num:4,  name:"Yellow Pine Townhomes",          addr:"2854 Yellow Pine Ct",          city:"Jacksonville, FL 32277",       zone:"Northeast", lat:30.3540041, lng:-81.5978016 },
+  { num:5,  name:"Ashley Lofts",                  addr:"412 E Ashley St",              city:"Jacksonville, FL 32202",       zone:"Downtown",  lat:30.3293763, lng:-81.6510459 },
+  { num:6,  name:"Huntington Forest",              addr:"10109 Old St Augustine Rd",    city:"Jacksonville, FL 32257",       zone:"Southside", lat:30.1942372, lng:-81.6098437 },
+  { num:7,  name:"McDuff Landings",                addr:"1504 McDuff Ave S",            city:"Jacksonville, FL 32205",       zone:"Riverside", lat:30.3047323, lng:-81.6998497 },
+  { num:8,  name:"Morgan's Walk Townhomes",        addr:"9806 Morgan Marsh Ct",         city:"Jacksonville, FL 32218",       zone:"Northside", lat:30.414188,  lng:-81.66121   },
+  { num:9,  name:"Nineteen-24",                   addr:"218 Church St W",              city:"Jacksonville, FL 32202",       zone:"Downtown",  lat:30.3304572, lng:-81.6600785 },
+  { num:10, name:"The Grand Oaks",                addr:"7201 Arlington Expy",          city:"Jacksonville, FL 32211",       zone:"Arlington", lat:30.3290755, lng:-81.5837179 },
+  { num:11, name:"The Haven at Parkside",         addr:"10825 Key Haven Blvd",         city:"Jacksonville, FL 32218",       zone:"Northside", lat:30.4315848, lng:-81.7209196 },
+  { num:12, name:"The Herschel",                  addr:"2775 Herschel St",             city:"Jacksonville, FL 32205",       zone:"Riverside", lat:30.3086348, lng:-81.6953603 },
+  { num:13, name:"The Villas at Jax Beach",       addr:"222 16th Ave N",               city:"Jacksonville Beach, FL 32250", zone:"Beach",     lat:30.3039007, lng:-81.3943774 },
+  { num:14, name:"The Villas at Willowbranch",    addr:"1320 Willow Branch Ave",       city:"Jacksonville, FL 32205",       zone:"Riverside", lat:30.3064403, lng:-81.7005145 },
+];
+
+const ZONES = {
+  Downtown:  { bg:'#e0f2fe', text:'#0369a1', pin:'#0ea5e9',  dot:'#0ea5e9'  },
+  Riverside: { bg:'#f0fdf4', text:'#166534', pin:'#16a34a',  dot:'#22c55e'  },
+  Northside: { bg:'#fdf4ff', text:'#7e22ce', pin:'#9333ea',  dot:'#a855f7'  },
+  Southside: { bg:'#fff7ed', text:'#c2410c', pin:'#ea580c',  dot:'#f97316'  },
+  Beach:     { bg:'#ecfdf5', text:'#065f46', pin:'#0d9488',  dot:'#14b8a6'  },
+  Arlington: { bg:'#fefce8', text:'#854d0e', pin:'#ca8a04',  dot:'#eab308'  },
+  Northeast: { bg:'#eff6ff', text:'#1d4ed8', pin:'#2563eb',  dot:'#3b82f6'  },
+  Westside:  { bg:'#fdf2f8', text:'#9d174d', pin:'#db2777',  dot:'#ec4899'  },
+};
+
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+let gmap, markers = {}, infoWindows = {};
+let activeTab = 'map';
+let activeZone = 'All';
+let activeNum  = null;
+let drawerOpen = false;
+
+// ══════════════════════════════════════
+//  TAB SWITCHING
+// ══════════════════════════════════════
+function switchTab(tab) {
+  if (activeTab === tab) return;
+  ['map','list','zones'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('visible', t === tab);
+    document.getElementById('tab-'+t).classList.toggle('hidden',  t !== tab);
+    document.getElementById('btn-'+t).classList.toggle('active',  t === tab);
+  });
+  activeTab = tab;
+  if (tab !== 'map') closeZoneDrawer();
+  if (tab === 'map' && gmap) {
+    setTimeout(() => google.maps.event.trigger(gmap,'resize'), 50);
+  }
+}
+
+// ══════════════════════════════════════
+//  GOOGLE MAPS INIT
+// ══════════════════════════════════════
+function initMap() {
+  gmap = new google.maps.Map(document.getElementById('gmap'), {
+    center: { lat:30.3322, lng:-81.6557 },
+    zoom: 11,
+    minZoom: 10,
+    maxZoom: 18,
+    restriction: {
+      latLngBounds: { north:30.58, south:30.10, east:-81.30, west:-81.85 },
+      strictBounds: false
+    },
+    mapTypeControl:    false,
+    streetViewControl: false,
+    fullscreenControl: false,
+    zoomControl:       true,
+    zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
+    gestureHandling: 'greedy',
+    styles: [
+      { featureType:"water",        elementType:"geometry",            stylers:[{color:"#c8dff0"}] },
+      { featureType:"landscape",    elementType:"geometry",            stylers:[{color:"#f5f0e8"}] },
+      { featureType:"road.highway", elementType:"geometry.fill",       stylers:[{color:"#d4a847"}] },
+      { featureType:"road.highway", elementType:"geometry.stroke",     stylers:[{color:"#b8902a"},{weight:0.6}] },
+      { featureType:"road.arterial",elementType:"geometry",            stylers:[{color:"#e8dfc8"}] },
+      { featureType:"road.local",   elementType:"geometry",            stylers:[{color:"#ede8db"}] },
+      { featureType:"poi.park",     elementType:"geometry",            stylers:[{color:"#d4e8c8"}] },
+      { featureType:"transit",                                         stylers:[{visibility:"off"}] },
+      { featureType:"poi.business",                                    stylers:[{visibility:"off"}] },
+      { featureType:"administrative.locality", elementType:"labels.text.fill",   stylers:[{color:"#1a3a5c"}] },
+      { featureType:"administrative.locality", elementType:"labels.text.stroke", stylers:[{color:"#ffffff"},{weight:3}] },
+      { featureType:"road", elementType:"labels.text.fill",            stylers:[{color:"#4a5568"}] },
+    ]
+  });
+
+  // Close drawer when tapping map
+  gmap.addListener('click', closeZoneDrawer);
+
+  PROPS.forEach(buildMarker);
+  buildSidebar();
+  buildZonesTab();
+  buildMapZoneChips();
+  buildListZoneChips();
+}
+
+// ══════════════════════════════════════
+//  MARKER BUILDER
+// ══════════════════════════════════════
+function makePinSVG(p, isActive) {
+  const zc = ZONES[p.zone];
+  const fill  = isActive ? '#c9a227' : zc.pin;
+  const stroke = isActive ? '#0f2137' : 'white';
+  const tcolor = isActive ? '#0f2137' : 'white';
+  const w = isActive ? 40 : 36, h = isActive ? 48 : 44;
+  const vb = `0 0 36 44`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="${vb}">
+    <path d="M18 0C8.06 0 0 8.06 0 18c0 13.5 18 26 18 26s18-12.5 18-26C36 8.06 27.94 0 18 0z"
+          fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+    <circle cx="18" cy="18" r="9" fill="white" opacity="0.2"/>
+    <text x="18" y="23" text-anchor="middle"
+          font-family="DM Mono, monospace" font-size="11" font-weight="600" fill="${tcolor}">
+      ${String(p.num).padStart(2,'0')}
+    </text>
+  </svg>`;
+}
+
+function makeIcon(p, isActive) {
+  const w = isActive ? 40 : 36, h = isActive ? 48 : 44;
+  return {
+    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(makePinSVG(p, isActive)),
+    scaledSize: new google.maps.Size(w, h),
+    anchor:     new google.maps.Point(w/2, h),
+  };
+}
+
+function buildMarker(p) {
+  const zc = ZONES[p.zone];
+  const gq = encodeURIComponent(`${p.addr}, ${p.city}`);
+
+  const marker = new google.maps.Marker({
+    position: { lat:p.lat, lng:p.lng },
+    map: gmap,
+    icon: makeIcon(p, false),
+    title: p.name,
+    optimized: false,
+  });
+
+  const iw = new google.maps.InfoWindow({
+    content: `
+      <div class="iw-wrap">
+        <div class="iw-head">
+          <div class="iw-num">${String(p.num).padStart(2,'0')}</div>
+          <div class="iw-title">${p.name}</div>
+        </div>
+        <div class="iw-body">
+          <div class="iw-row"><span class="iw-ico">📍</span><span>${p.addr}<br>${p.city}</span></div>
+          <div class="iw-row"><span class="iw-ico">🏘</span><span class="iw-zone" style="background:${zc.bg};color:${zc.text}">${p.zone}</span></div>
+          <div class="iw-btns">
+            <a class="iw-btn iw-btn-primary" href="https://www.google.com/maps/search/?api=1&query=${gq}" target="_blank">↗ Navigate</a>
+            <a class="iw-btn iw-btn-secondary" onclick="viewInList(${p.num})">View Details</a>
+          </div>
+        </div>
+      </div>`,
+    pixelOffset: new google.maps.Size(0, -6)
+  });
+
+  marker.addListener('click', () => {
+    closeAllIW();
+    iw.open(gmap, marker);
+    setActive(p.num);
+  });
+
+  iw.addListener('closeclick', () => { deactivate(p.num); });
+
+  markers[p.num]     = marker;
+  infoWindows[p.num] = iw;
+}
+
+// ══════════════════════════════════════
+//  ACTIVE STATE
+// ══════════════════════════════════════
+function setActive(num) {
+  if (activeNum && activeNum !== num) deactivate(activeNum);
+  activeNum = num;
+  const p = PROPS.find(x => x.num === num);
+  markers[num].setIcon(makeIcon(p, true));
+  markers[num].setZIndex(999);
+  // highlight list card
+  document.querySelectorAll('.prop-card').forEach(c => c.classList.remove('active-card'));
+  const card = document.getElementById(`pc-${num}`);
+  if (card) card.classList.add('active-card');
+}
+
+function deactivate(num) {
+  if (!num) return;
+  const p = PROPS.find(x => x.num === num);
+  if (p) { markers[num].setIcon(makeIcon(p, false)); markers[num].setZIndex(1); }
+  const card = document.getElementById(`pc-${num}`);
+  if (card) card.classList.remove('active-card');
+  if (activeNum === num) activeNum = null;
+}
+
+function closeAllIW() {
+  Object.values(infoWindows).forEach(iw => iw.close());
+}
+
+// ══════════════════════════════════════
+//  FOCUS PROPERTY (from list/zones)
+// ══════════════════════════════════════
+function focusProp(num) {
+  const p = PROPS.find(x => x.num === num);
+  switchTab('map');
+  setTimeout(() => {
+    gmap.panTo({ lat:p.lat, lng:p.lng });
+    gmap.setZoom(15);
+    closeAllIW();
+    infoWindows[num].open(gmap, markers[num]);
+    setActive(num);
+  }, 280);
+}
+
+function viewInList(num) {
+  closeAllIW();
+  switchTab('list');
+  setTimeout(() => {
+    const card = document.getElementById(`pc-${num}`);
+    if (card) { card.scrollIntoView({ behavior:'smooth', block:'center' }); card.classList.add('active-card'); }
+  }, 300);
+}
+
+// ══════════════════════════════════════
+//  ZONE DRAWER (map tab)
+// ══════════════════════════════════════
+function buildMapZoneChips() {
+  const wrap = document.getElementById('map-zone-chips');
+  ['All', ...Object.keys(ZONES)].forEach(z => {
+    const c = document.createElement('div');
+    c.className = 'z-chip' + (z === 'All' ? ' active' : '');
+    c.textContent = z;
+    c.onclick = () => {
+      document.querySelectorAll('.z-chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      activeZone = z;
+      applyZoneFilter();
+      setTimeout(closeZoneDrawer, 180);
+    };
+    wrap.appendChild(c);
+  });
+}
+
+function toggleZoneDrawer() {
+  drawerOpen = !drawerOpen;
+  document.getElementById('zone-drawer').classList.toggle('open', drawerOpen);
+}
+function closeZoneDrawer() {
+  drawerOpen = false;
+  document.getElementById('zone-drawer').classList.remove('open');
+}
+
+function applyZoneFilter() {
+  let visible = 0;
+  PROPS.forEach(p => {
+    const show = activeZone === 'All' || p.zone === activeZone;
+    markers[p.num].setVisible(show);
+    const card = document.getElementById(`pc-${p.num}`);
+    if (card) card.classList.toggle('filtered-out', !show);
+    if (show) visible++;
+  });
+  document.getElementById('visible-count').textContent = visible;
+  const badge = document.getElementById('filter-badge');
+  badge.style.display = activeZone !== 'All' ? 'flex' : 'none';
+  updateListCount();
+}
+
+// ══════════════════════════════════════
+//  SEARCH
+// ══════════════════════════════════════
+function mapSearch(val) {
+  document.getElementById('map-search-clear').style.display = val ? 'block' : 'none';
+  const v = val.toLowerCase();
+  let visible = 0;
+  PROPS.forEach(p => {
+    const match = !v || p.name.toLowerCase().includes(v) || p.zone.toLowerCase().includes(v) || p.addr.toLowerCase().includes(v);
+    const zoneOk = activeZone === 'All' || p.zone === activeZone;
+    const show = match && zoneOk;
+    markers[p.num].setVisible(show);
+    if (show) visible++;
+  });
+  document.getElementById('visible-count').textContent = visible;
+}
+
+function clearMapSearch() {
+  document.getElementById('map-search').value = '';
+  document.getElementById('map-search-clear').style.display = 'none';
+  applyZoneFilter();
+}
+
+function listSearch(val) {
+  const v = val.toLowerCase();
+  let shown = 0;
+  PROPS.forEach(p => {
+    const card = document.getElementById(`pc-${p.num}`);
+    if (!card) return;
+    const zoneOk = activeZone === 'All' || p.zone === activeZone;
+    const match  = !v || p.name.toLowerCase().includes(v) || p.zone.toLowerCase().includes(v) || p.addr.toLowerCase().includes(v) || p.city.toLowerCase().includes(v);
+    const hide   = !zoneOk || !match;
+    card.classList.toggle('filtered-out', hide);
+    if (!hide) shown++;
+  });
+  document.getElementById('no-results').style.display = shown === 0 ? 'block' : 'none';
+  updateListCount();
+}
+
+// ══════════════════════════════════════
+//  LIST ZONE CHIPS
+// ══════════════════════════════════════
+function buildListZoneChips() {
+  const bar = document.getElementById('list-zone-bar');
+  ['All', ...Object.keys(ZONES)].forEach(z => {
+    const c = document.createElement('div');
+    c.className = 'lz-chip' + (z === 'All' ? ' active' : '');
+    c.textContent = z;
+    c.onclick = () => {
+      document.querySelectorAll('.lz-chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      activeZone = z;
+      listSearch(document.getElementById('list-search').value);
+      // sync map zone chips too
+      document.querySelectorAll('.z-chip').forEach(x => {
+        x.classList.toggle('active', x.textContent === z);
+      });
+      applyZoneFilter();
+    };
+    bar.appendChild(c);
+  });
+}
+
+function updateListCount() {
+  const shown = document.querySelectorAll('.prop-card:not(.filtered-out)').length;
+  document.getElementById('list-count-pill').textContent = shown + ' total';
+}
+
+// ══════════════════════════════════════
+//  SIDEBAR CARDS (List tab)
+// ══════════════════════════════════════
+function buildSidebar() {
+  const scroll = document.getElementById('prop-scroll');
+  PROPS.forEach(p => {
+    const zc = ZONES[p.zone];
+    const card = document.createElement('div');
+    card.className = 'prop-card';
+    card.id = `pc-${p.num}`;
+    card.innerHTML = `
+      <div class="prop-num">${String(p.num).padStart(2,'0')}</div>
+      <div class="prop-info">
+        <div class="prop-name">${p.name}</div>
+        <div class="prop-addr">${p.addr}<br>${p.city}</div>
+        <span class="prop-zone-tag" style="background:${zc.bg};color:${zc.text}">${p.zone}</span>
+      </div>`;
+    card.onclick = () => focusProp(p.num);
+    scroll.insertBefore(card, document.getElementById('no-results'));
+  });
+}
+
+// ══════════════════════════════════════
+//  ZONES TAB
+// ══════════════════════════════════════
+function buildZonesTab() {
+  const cont = document.getElementById('zones-content');
+  const grouped = {};
+  PROPS.forEach(p => { (grouped[p.zone] = grouped[p.zone] || []).push(p); });
+  Object.entries(grouped).sort((a,b) => b[1].length - a[1].length).forEach(([zone, props]) => {
+    const zc = ZONES[zone];
+    const sec = document.createElement('div');
+    sec.className = 'zone-section';
+    sec.innerHTML = `
+      <div class="zone-section-header">
+        <div class="zone-color-dot" style="background:${zc.dot}"></div>
+        <div class="zone-section-name">${zone}</div>
+        <div class="zone-section-count">${props.length} propert${props.length > 1 ? 'ies' : 'y'}</div>
+      </div>`;
+    props.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'zone-mini-card';
+      item.innerHTML = `
+        <div class="zone-mini-num" style="background:${zc.pin}">${String(p.num).padStart(2,'0')}</div>
+        <div>
+          <div class="zone-mini-name">${p.name}</div>
+          <div class="zone-mini-addr">${p.addr}</div>
+        </div>
+        <div class="zone-mini-arrow">›</div>`;
+      item.onclick = () => focusProp(p.num);
+      sec.appendChild(item);
+    });
+    cont.appendChild(sec);
+  });
+}
+</script>
+
+<script async
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyClYh2U5RsrKfzQEDKNYXlhm1lqopH8wMI&callback=initMap">
+</script>
+</body>
+</html>
